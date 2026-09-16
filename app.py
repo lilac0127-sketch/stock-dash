@@ -18,7 +18,7 @@ from providers import Official, demo, DataError
 from storage import Store
 
 load_dotenv()
-st.set_page_config(page_title="PlanX · 내 관심종목", page_icon="📊", layout="wide")
+st.set_page_config(page_title="DOA · 투자 인사이트", page_icon="📊", layout="wide")
 # Streamlit root-level secrets become env vars, but explicit loading is clearer.
 try:
     for key in ["APP_PASSWORD", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "DATA_GO_KR_SERVICE_KEY", "DART_CRTFC_KEY", "OPENAI_API_KEY", "OPENAI_MODEL"]:
@@ -27,7 +27,7 @@ try:
 except FileNotFoundError:
     pass
 
-st.title("내 관심종목 퀀트 보드")
+st.title("DOA · 투자 인사이트")
 st.caption("종목명을 입력하면 공식 실적·가치·사업 분석을 가져오고 기록합니다.")
 st.markdown("<style>.stMetric{border:1px solid #e7d9c4;padding:16px;border-radius:14px}h1,h2,h3{letter-spacing:-.03em}</style>", unsafe_allow_html=True)
 
@@ -41,6 +41,17 @@ if password and not st.session_state.get("authorized"):
                 st.rerun()
             else:
                 st.error("비밀번호를 확인하세요.")
+    st.stop()
+
+# The reference design is a self-contained, explicitly labelled demo.
+# Keep the existing authenticated analysis and storage workflow intact.
+from pathlib import Path
+import streamlit.components.v1 as components
+
+view = st.radio("화면 선택", ["투자 인사이트 디자인", "실제 데이터 분석"], horizontal=True)
+if view == "투자 인사이트 디자인":
+    design = Path(__file__).parent / "design" / "index.html"
+    components.html(design.read_text(encoding="utf-8"), height=1150, scrolling=True)
     st.stop()
 
 class SessionStore:
@@ -420,3 +431,4 @@ with journal:
                     st.json(item)
     else:
         st.info("종목을 분석하면 결과가 자동 저장됩니다. 나의 판단만 한 문장 덧붙이세요.")
+
